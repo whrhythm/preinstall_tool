@@ -1,0 +1,8 @@
+# License: Apache-2.0
+single_node: true
+
+ntp_enable: false
+ntp_servers: ["ntp.aliyun.com"]
+
+docker_registry_mirrors: ""
+docker_insecure_registries: "harbor.joiningos.com"

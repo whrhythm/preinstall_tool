@@ -1,0 +1,101 @@
+# License: Apache-2.0
+
+---
+# This file contains variables intended to be configured by user.
+# It allows feature enabling and configuration.
+
+##################################################
+##### User settings
+
+### GitHub token
+# It must be provided when using private repositories.
+# Not required when using github.com/smart-edge-open repositories.
+
+git_repo_token: ""
+
+### Proxy settings
+# Setup proxy on the machine - required if the Internet is accessible via proxy
+proxy_enable: false
+# Clear previous proxy settings
+proxy_remove_old: true
+# Proxy URLs to be used for HTTP, HTTPS and FTP
+proxy_http: "http://proxy.example.org:3128"
+proxy_https: "http://proxy.example.org:3129"
+proxy_ftp: "http://proxy.example.org:3128"
+# Proxy to be used by YUM (/etc/yum.conf)
+proxy_yum: "{{ proxy_http }}"
+# No proxy setting contains addresses and networks that should not be accessed using proxy (e.g. local network, Kubernetes CNI networks)
+proxy_noproxy: ""
+
+# Proxy for be used by GIT HTTP - required if GIT HTTP via proxy
+git_http_proxy: "{{ proxy_http }}"
+
+# Disable YUM plugins (e.g. Fastest Mirror)
+os_remove_yum_plugins: true
+
+### joiningos Git Repository
+# Following variable specify branch/SHA/tag to be checked out for the source repository
+git_repo_branch: 
+
+# If True, the repository will be deleted and cloned again
+# If False, repository will be left as it is and any changes won't be overwritten.
+always_clean_repository: True
+
+### Network Time Protocol (NTP)
+# Enable machine's time synchronization with NTP server
+ntp_enable: false
+# Servers to be used by NTP instead of the default ones (e.g. 0.centos.pool.ntp.org)
+ntp_servers: []
+
+### Retry settings for network-based tasks
+# - number_of_retries - configures how many times failed task should be retried
+# - retry_delay - configures delay between retries (in seconds)
+number_of_retries: 10
+retry_delay: 5
+
+# - allowed_number_of_k8s_retries - configures how many Kubernetes failures are allowed
+allowed_number_of_k8s_retries: 10
+
+### Network Edge's Kubernetes CNIs
+# List of requested CNIs to be used in Network Edge mode
+# CNIs are applied in order of definition
+# Multus CNI is implicit - it will be applied as 2nd one if list contains more than 1
+# Available CNIs:
+# - flannel
+# - calico (note: if the calico CNI is used, then it must be main/primary CNI, i.e. first on the list)
+
+# NOTE - For VCAC-A setup, use `weavenet` CNI
+kubernetes_cnis:
+  - calico
+
+# Calico's CIDR (will be included automatically to noproxy when calico is included in kubernetes_cnis)
+calico_cidr: "10.245.0.0/16"
+
+# Flannel's CIDR (will be included automatically to noproxy when flannel is included in kubernetes_cnis)
+flannel_cidr: "10.244.0.0/16"
+
+# joiningos installation directory
+joiningos_dir: "/opt/joiningos"
+
+# joiningos users group
+joiningos_user_group: "{{ ansible_user }}"
+
+# joiningos pods retry variable
+joiningos_pods_timeout_min: 15
+
+
+## Network Edge Node Feature Discovery (NFD)
+ne_nfd_enable: True
+
+## Network Edge Helm Charts Storage Default Directory
+ne_helm_charts_default_dir: "{{ joiningos_dir }}/helm-charts"
+
+
+## Offline Mode support
+offline_enable: True
+
+## Docker images cache directory, all images with .tar* suffix will be preloaded during docker setup
+docker_images_dir: "{{ joiningos_dir }}/images-cache"
+
+##Enable cgroupfs to be used as a cgroup driver instead of systemd.
+cgroupfs_enable: False

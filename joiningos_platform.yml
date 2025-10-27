@@ -1,0 +1,29 @@
+# License: Apache-2.0
+
+---
+# Playbook for joiningOS platform deployment
+
+- name: Set hostnames for all nodes
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Validate unique hostnames
+      run_once: yes
+      vars:
+        all_hostnames: "{{ groups['all'] | map('extract', hostvars) | map(attribute='inventory_hostname') | list }}"
+      fail:
+        msg: "Duplicate hostname detected. Please ensure all inventory_hostname values are unique."
+      when: all_hostnames | unique | length != all_hostnames | length
+
+    - name: Set permanent hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+      when: ansible_hostname != inventory_hostname
+      changed_when: true
+
+- hosts: all
+  roles:
+    - role: applications/kuber
+    - role: applications/istio
+    - role: applications/prometheus
+    - role: applications/dify

@@ -1,0 +1,33 @@
+# License: Apache-2.0
+
+---
+# Playbook for joiningOS platform deployment
+- name: Set hostnames for all nodes
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Validate unique hostnames
+      run_once: yes
+      vars:
+        all_hostnames: "{{ groups['all'] | map('extract', hostvars) | map(attribute='inventory_hostname') | list }}"
+      fail:
+        msg: "Duplicate hostname detected. Please ensure all inventory_hostname values are unique."
+      when: all_hostnames | unique | length != all_hostnames | length
+
+    - name: Set permanent hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+      when: ansible_hostname != inventory_hostname
+      changed_when: true
+
+    - name: Replace old hostname on 127.0.1.1 line with inventory_hostname
+      replace:
+        path: /etc/hosts
+        regexp: '^127\.0\.1\.1\s+.*$'
+        replace: '127.0.1.1 {{ inventory_hostname }}'
+
+- hosts: edgenode_group
+  roles:
+    - role: infrastructure/os_setup
+    - role: kubernetes/node
+
